@@ -9,6 +9,11 @@ let saveButton; // Nuevo botón para guardar el modelo manualmente
 
 function modelReady() {
   console.log('Model is ready!!!');
+  predictor.load('model.json',getModel);
+}
+
+function getModel(){
+  predictor.predict(gotResults);
 }
 
 function videoReady() {
