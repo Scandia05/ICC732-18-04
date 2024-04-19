@@ -1,26 +1,35 @@
 let mobilenet;
-let predictor;
+let classifier;
 let video;
+let label = 'loading model';
+let happyButton;
+let sadButton;
+let trainButton;
 let value = 0;
-
+let slider;
+let addButton;
 
 function modelReady() {
   console.log('Model is ready!!!');
-  // Puedes comenzar a predecir resultados aquí si lo deseas
-  predictor.predict(gotResults);
+  predictor.load('model.json', customModelReady);
+}
+
+function customModelReady() {
+console.log('Custom Model is ready!!!');
+label = 'model ready';
+predictor.predict(gotResults);
 }
 
 function videoReady() {
   console.log('Video is ready!!!');
 }
 
-function gotResults(error, result) {
-  if (error) {
-    console.error(error);
+function whileTraining(loss) {
+  if (loss == null) {
+    console.log('Training Complete');
+    //predictor.predict(gotResults);
   } else {
-    // Actualiza el valor con los resultados de predicción
-    value = result.value;
-    predictor.predict(gotResults);
+    console.log(loss);
   }
 }
 
@@ -29,14 +38,25 @@ function setup() {
   video = createCapture(VIDEO);
   video.hide();
   background(0);
-
-  // Cargar un modelo previamente guardado
-  // Crea una instancia de ml5.featureExtractor
   mobilenet = ml5.featureExtractor('MobileNet', modelReady);
-  
-  // Cargar el modelo desde los archivos model.json y model.weights.bin
-  predictor= mobilenet.regression(video,videoReady);
-  predictor.load('model.json', 'model.weights.bin', video, videoReady);
+  predictor = mobilenet.regression(video, videoReady);
+
+  slider = createSlider(0, 1, 0.5, 0.01);
+
+  addButton = createButton('add example image');
+  addButton.mousePressed(function() {
+    predictor.addImage(slider.value());
+  });
+
+  trainButton = createButton('train');
+  trainButton.mousePressed(function() {
+    predictor.train(whileTraining);
+  });
+
+  saveButton = createButton('save');
+  saveButton.mousePressed(function() {
+    predictor.save();
+  });
 }
 
 function draw() {
@@ -49,4 +69,14 @@ function draw() {
   fill(255);
   textSize(16);
   text(value, 10, height - 10);
+}
+
+function gotResults(error, result) {
+  if (error) {
+    console.error(error);
+  } else {
+    // updated to work with newer version of ml5
+    value = result.value;
+    predictor.predict(gotResults);
+  }
 }

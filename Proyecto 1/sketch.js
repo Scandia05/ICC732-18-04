@@ -9,7 +9,7 @@ let saveButton; // Nuevo botón para guardar el modelo manualmente
 
 function modelReady() {
   console.log('Model is ready!!!');
-  predictor.load('model.json',getModel);
+  //predictor.load('model.json',getModel);
 }
 
 function getModel(){
@@ -80,4 +80,3 @@ function draw() {
   textSize(16);
   text(value, 10, height - 10);
 }
-
